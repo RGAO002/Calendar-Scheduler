@@ -1,0 +1,47 @@
+[
+  {
+    "first_name": "Emma",
+    "last_name": "Chen",
+    "grade_level": 5,
+    "date_of_birth": "2015-03-14",
+    "parent_name": "Linda Chen",
+    "parent_email": "linda.chen@example.com",
+    "notes": "Advanced in math, learning piano on Tue/Thu afternoons"
+  },
+  {
+    "first_name": "Liam",
+    "last_name": "O'Brien",
+    "grade_level": 7,
+    "date_of_birth": "2013-07-22",
+    "parent_name": "Sean O'Brien",
+    "parent_email": "sean.obrien@example.com",
+    "notes": "Science enthusiast, plays soccer Tue/Thu 3-5pm"
+  },
+  {
+    "first_name": "Sofia",
+    "last_name": "Martinez",
+    "grade_level": 3,
+    "date_of_birth": "2017-11-05",
+    "parent_name": "Maria Martinez",
+    "parent_email": "maria.martinez@example.com",
+    "notes": "Needs extra reading support, very creative"
+  },
+  {
+    "first_name": "Noah",
+    "last_name": "Kim",
+    "grade_level": 10,
+    "date_of_birth": "2010-01-30",
+    "parent_name": "David Kim",
+    "parent_email": "david.kim@example.com",
+    "notes": "AP-track, STEM focused, self-motivated learner"
+  },
+  {
+    "first_name": "Ava",
+    "last_name": "Patel",
+    "grade_level": 8,
+    "date_of_birth": "2012-09-18",
+    "parent_name": "Priya Patel",
+    "parent_email": "priya.patel@example.com",
+    "notes": "Balanced curriculum, interested in art and writing"
+  }
+]

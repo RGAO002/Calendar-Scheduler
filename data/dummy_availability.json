@@ -1,0 +1,65 @@
+{
+  "Emma Chen": [
+    {"day_of_week": 0, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 0, "start_time": "13:00", "end_time": "15:00", "preference": "available"},
+    {"day_of_week": 1, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 1, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 1, "start_time": "15:00", "end_time": "16:00", "preference": "avoid"},
+    {"day_of_week": 2, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 2, "start_time": "13:00", "end_time": "15:00", "preference": "available"},
+    {"day_of_week": 3, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 3, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 3, "start_time": "15:00", "end_time": "16:00", "preference": "avoid"},
+    {"day_of_week": 4, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 4, "start_time": "13:00", "end_time": "15:00", "preference": "available"}
+  ],
+  "Liam O'Brien": [
+    {"day_of_week": 0, "start_time": "08:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 0, "start_time": "13:00", "end_time": "15:30", "preference": "available"},
+    {"day_of_week": 1, "start_time": "08:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 1, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 1, "start_time": "15:00", "end_time": "17:00", "preference": "avoid"},
+    {"day_of_week": 2, "start_time": "08:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 2, "start_time": "13:00", "end_time": "15:30", "preference": "available"},
+    {"day_of_week": 3, "start_time": "08:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 3, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 3, "start_time": "15:00", "end_time": "17:00", "preference": "avoid"},
+    {"day_of_week": 4, "start_time": "08:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 4, "start_time": "13:00", "end_time": "15:30", "preference": "available"}
+  ],
+  "Sofia Martinez": [
+    {"day_of_week": 0, "start_time": "09:00", "end_time": "11:30", "preference": "preferred"},
+    {"day_of_week": 0, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 1, "start_time": "09:00", "end_time": "11:30", "preference": "preferred"},
+    {"day_of_week": 1, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 2, "start_time": "09:00", "end_time": "11:30", "preference": "preferred"},
+    {"day_of_week": 2, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 3, "start_time": "09:00", "end_time": "11:30", "preference": "preferred"},
+    {"day_of_week": 3, "start_time": "13:00", "end_time": "14:30", "preference": "available"},
+    {"day_of_week": 4, "start_time": "09:00", "end_time": "11:30", "preference": "preferred"}
+  ],
+  "Noah Kim": [
+    {"day_of_week": 0, "start_time": "07:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 0, "start_time": "13:00", "end_time": "16:00", "preference": "available"},
+    {"day_of_week": 1, "start_time": "07:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 1, "start_time": "13:00", "end_time": "16:00", "preference": "available"},
+    {"day_of_week": 2, "start_time": "07:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 2, "start_time": "13:00", "end_time": "16:00", "preference": "available"},
+    {"day_of_week": 3, "start_time": "07:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 3, "start_time": "13:00", "end_time": "16:00", "preference": "available"},
+    {"day_of_week": 4, "start_time": "07:30", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 4, "start_time": "13:00", "end_time": "15:00", "preference": "available"}
+  ],
+  "Ava Patel": [
+    {"day_of_week": 0, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 0, "start_time": "13:00", "end_time": "15:30", "preference": "available"},
+    {"day_of_week": 1, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 1, "start_time": "13:00", "end_time": "15:30", "preference": "available"},
+    {"day_of_week": 2, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 2, "start_time": "13:00", "end_time": "15:30", "preference": "available"},
+    {"day_of_week": 3, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 3, "start_time": "13:00", "end_time": "15:30", "preference": "available"},
+    {"day_of_week": 4, "start_time": "08:00", "end_time": "12:00", "preference": "preferred"},
+    {"day_of_week": 4, "start_time": "13:00", "end_time": "14:00", "preference": "available"}
+  ]
+}
