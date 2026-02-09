@@ -16,12 +16,71 @@ st.markdown("---")
 # PDF type selector
 pdf_type = st.selectbox(
     "What would you like to generate?",
-    ["Practice Problems", "Course Overview", "Schedule Report"],
+    ["Semester Calendar (3+ Months)", "Practice Problems", "Course Overview", "Schedule Report"],
 )
 
 st.markdown("---")
 
-if pdf_type == "Practice Problems":
+if pdf_type == "Semester Calendar (3+ Months)":
+    st.subheader("Generate Semester Course Calendar")
+    st.markdown("Generate a wall-calendar style PDF with your course schedule marked on each day.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        num_months = st.selectbox("Number of Months", [3, 4, 5, 6], index=0)
+    with col2:
+        from datetime import date
+        start_date = st.date_input("Start Date", value=date.today().replace(day=1))
+
+    # Determine data source
+    use_demo = False
+    if student_id:
+        # Try to check if the student actually has active courses
+        try:
+            from db.queries import get_student_schedules, get_student_all_slots
+            schedules = get_student_schedules(student_id, status="active")
+            slots = get_student_all_slots(student_id)
+            if schedules and slots:
+                st.info(f"Will generate calendar with **{len(schedules)} active courses** for the selected student.")
+            else:
+                st.warning(
+                    "Selected student has **no active courses**. "
+                    "Using **demo data** (Emma Chen, Grade 5, 6 courses).\n\n"
+                    "To use real data, seed the database: `python seed_data.py --supabase`"
+                )
+                use_demo = True
+        except Exception:
+            st.warning("Could not connect to database — will use **demo calendar** with sample data.")
+            use_demo = True
+    else:
+        st.warning("No student selected — will generate a **demo calendar** with sample data.")
+        use_demo = True
+
+    if st.button("Generate Semester Calendar PDF", type="primary"):
+        with st.spinner(f"Generating {num_months}-month calendar..."):
+            try:
+                if use_demo:
+                    from pdf.generator import generate_demo_calendar_pdf
+                    pdf_bytes = generate_demo_calendar_pdf(num_months=num_months)
+                else:
+                    from pdf.generator import generate_semester_calendar_pdf
+                    pdf_bytes = generate_semester_calendar_pdf(
+                        student_id=student_id,
+                        num_months=num_months,
+                        start_date=start_date,
+                    )
+                st.success(f"{num_months}-month calendar generated!")
+                student_name = st.session_state.get("selected_student_name", "Demo")
+                render_pdf_preview(
+                    pdf_bytes,
+                    filename=f"{student_name}_Calendar_{num_months}mo.pdf",
+                )
+            except Exception as e:
+                st.error(f"Error: {e}")
+                import traceback
+                st.code(traceback.format_exc())
+
+elif pdf_type == "Practice Problems":
     st.subheader("Generate Practice Problems")
 
     col1, col2, col3 = st.columns(3)

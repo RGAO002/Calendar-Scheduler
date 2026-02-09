@@ -26,6 +26,7 @@ Use the sidebar to select a student, then navigate to the tools:
 - **Courses** — Browse the course catalog
 - **PDF Generator** — Create textbook-quality practice materials
 - **OCR Upload** — Extract text from uploaded documents
+- **Calendar View** — Interactive monthly / weekly / list calendar
 
 Select a student from the sidebar to get started.
 """)
