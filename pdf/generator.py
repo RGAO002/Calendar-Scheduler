@@ -13,7 +13,7 @@ def generate_practice_pdf_from_sample(subject: str, grade: int) -> bytes | None:
     """
     from pdf.templates.practice_problems import build_practice_problems_pdf
 
-    # Map subject to sample file
+    # Map subject to sample file 
     subject_file_map = {
         "Math": "math_grade5.json",
         "Science": "science_grade6.json",
@@ -69,7 +69,7 @@ def generate_semester_calendar_pdf(
     schedules: list = None,
     slots: list = None,
 ) -> bytes:
-    """Generate a multi-month semester calendar PDF.
+    """Generate a multi-month semester calendar PDF for a student.
 
     Can be called with just student_id (will query DB), or with
     pre-fetched student/schedules/slots data for offline use.
