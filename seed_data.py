@@ -70,13 +70,13 @@ def seed_supabase():
     sb.table("availability").insert(all_avail).execute()
     print("  ✅ Availability inserted")
 
-    # Insert sample schedules (Emma and Liam)
+    # Insert sample schedules for all 5 students
     today = date.today()
     semester_start = today - timedelta(days=today.weekday())  # Start of current week
     semester_end = semester_start + timedelta(weeks=12)
 
     sample_schedules = [
-        # Emma: MATH-5A Mon/Wed 9-10, ELA-5A Tue/Thu 9-10
+        # ── Emma Chen (Grade 5) ──
         {
             "student_name": "Emma Chen",
             "course_code": "MATH-5A",
@@ -95,7 +95,16 @@ def seed_supabase():
                 {"day_of_week": 3, "start_time": "09:00", "end_time": "10:00"},
             ],
         },
-        # Liam: SCI-7A Mon/Wed 10-11:30, MATH-7A Tue/Thu 10-11
+        {
+            "student_name": "Emma Chen",
+            "course_code": "SCI-5A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 0, "start_time": "10:30", "end_time": "11:30"},
+                {"day_of_week": 2, "start_time": "10:30", "end_time": "11:30"},
+            ],
+        },
+        # ── Liam O'Brien (Grade 7) ──
         {
             "student_name": "Liam O'Brien",
             "course_code": "SCI-7A",
@@ -114,7 +123,128 @@ def seed_supabase():
                 {"day_of_week": 3, "start_time": "10:00", "end_time": "11:00"},
             ],
         },
+        {
+            "student_name": "Liam O'Brien",
+            "course_code": "ELA-7A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 1, "start_time": "08:30", "end_time": "10:00"},
+                {"day_of_week": 3, "start_time": "08:30", "end_time": "10:00"},
+            ],
+        },
+        # ── Sofia Martinez (Grade 3) ──
+        {
+            "student_name": "Sofia Martinez",
+            "course_code": "ELA-3A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 0, "start_time": "09:00", "end_time": "10:00"},
+                {"day_of_week": 2, "start_time": "09:00", "end_time": "10:00"},
+            ],
+        },
+        {
+            "student_name": "Sofia Martinez",
+            "course_code": "MATH-3A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 1, "start_time": "09:00", "end_time": "10:00"},
+                {"day_of_week": 3, "start_time": "09:00", "end_time": "10:00"},
+            ],
+        },
+        {
+            "student_name": "Sofia Martinez",
+            "course_code": "ART-3A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 4, "start_time": "09:00", "end_time": "11:00"},
+            ],
+        },
+        {
+            "student_name": "Sofia Martinez",
+            "course_code": "PE-3A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 4, "start_time": "13:00", "end_time": "14:00"},
+            ],
+        },
+        # ── Noah Kim (Grade 10) ──
+        {
+            "student_name": "Noah Kim",
+            "course_code": "MATH-10A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 0, "start_time": "07:30", "end_time": "09:30"},
+                {"day_of_week": 2, "start_time": "07:30", "end_time": "09:30"},
+            ],
+        },
+        {
+            "student_name": "Noah Kim",
+            "course_code": "SCI-10A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 1, "start_time": "07:30", "end_time": "09:30"},
+                {"day_of_week": 3, "start_time": "07:30", "end_time": "09:30"},
+            ],
+        },
+        {
+            "student_name": "Noah Kim",
+            "course_code": "ELA-10A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 0, "start_time": "10:00", "end_time": "11:30"},
+                {"day_of_week": 2, "start_time": "10:00", "end_time": "11:30"},
+            ],
+        },
+        {
+            "student_name": "Noah Kim",
+            "course_code": "HIST-10A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 1, "start_time": "10:00", "end_time": "11:30"},
+                {"day_of_week": 3, "start_time": "10:00", "end_time": "11:30"},
+            ],
+        },
+        # ── Ava Patel (Grade 8) ──
+        {
+            "student_name": "Ava Patel",
+            "course_code": "ELA-7A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 0, "start_time": "08:00", "end_time": "09:30"},
+                {"day_of_week": 2, "start_time": "08:00", "end_time": "09:30"},
+            ],
+        },
+        {
+            "student_name": "Ava Patel",
+            "course_code": "MATH-7A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 1, "start_time": "08:00", "end_time": "10:00"},
+                {"day_of_week": 3, "start_time": "08:00", "end_time": "10:00"},
+            ],
+        },
+        {
+            "student_name": "Ava Patel",
+            "course_code": "ART-5A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 4, "start_time": "08:00", "end_time": "10:00"},
+            ],
+        },
+        {
+            "student_name": "Ava Patel",
+            "course_code": "SCI-8A",
+            "status": "active",
+            "slots": [
+                {"day_of_week": 0, "start_time": "10:00", "end_time": "11:30"},
+                {"day_of_week": 2, "start_time": "10:00", "end_time": "11:30"},
+            ],
+        },
     ]
+
+    # Clear existing schedules (and their slots via CASCADE) so re-seeding doesn't duplicate
+    for sid in student_map.values():
+        sb.table("schedules").delete().eq("student_id", sid).execute()
 
     print("  Inserting sample schedules...")
     for sched in sample_schedules:
