@@ -269,6 +269,47 @@ def seed_supabase():
             sb.table("schedule_slots").insert(slot).execute()
 
     print("  ✅ Sample schedules inserted")
+
+    # Generate session instances for check-in tracking
+    print("  Generating session instances for check-in...")
+    from db.queries import generate_session_instances
+    import random
+
+    all_schedules = sb.table("schedules").select("*").eq("status", "active").execute().data
+    total_instances = 0
+    for sch in all_schedules:
+        instances = generate_session_instances(sch["id"], sch["start_date"], sch["end_date"])
+        if instances:
+            total_instances += len(instances)
+    print(f"  ✅ {total_instances} session instances created")
+
+    # Mark some past sessions as completed/missed for realistic demo data
+    past_sessions = (
+        sb.table("session_instances")
+        .select("*")
+        .eq("status", "pending")
+        .lt("session_date", str(today))
+        .execute()
+        .data
+    )
+    if past_sessions:
+        completed_count = 0
+        missed_count = 0
+        for session in past_sessions:
+            # 80% completed, 20% missed
+            if random.random() < 0.8:
+                sb.table("session_instances").update({
+                    "status": "completed",
+                    "checked_in_at": session["session_date"] + "T15:00:00Z",
+                }).eq("id", session["id"]).execute()
+                completed_count += 1
+            else:
+                sb.table("session_instances").update({
+                    "status": "missed",
+                }).eq("id", session["id"]).execute()
+                missed_count += 1
+        print(f"  ✅ Demo check-in data: {completed_count} completed, {missed_count} missed")
+
     print("✅ Supabase seeding complete!\n")
     return student_map, course_map
 

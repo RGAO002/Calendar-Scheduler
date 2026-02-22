@@ -54,6 +54,30 @@ try:
         preferred = sum(1 for a in availability if a.get("preference") == "preferred")
         st.metric("Preferred Slots", preferred)
 
+    # Check-In Progress
+    try:
+        from db.queries import get_checkin_stats, get_unresolved_missed
+
+        stats = get_checkin_stats(student_id)
+        missed = get_unresolved_missed(student_id)
+
+        st.markdown("---")
+        st.subheader("📈 Check-In Progress")
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            rate = stats.get("completion_rate", 0)
+            st.metric("Completion Rate", f"{rate:.0%}")
+        with c2:
+            st.metric("Current Streak", f"{stats.get('streak', 0)} days")
+        with c3:
+            wc = stats.get("week_completed", 0)
+            wt = stats.get("week_total", 0)
+            st.metric("This Week", f"{wc}/{wt}")
+        with c4:
+            st.metric("Missed (Unresolved)", len(missed))
+    except Exception:
+        pass  # check-in tables may not exist yet
+
     st.markdown("---")
 
     # Weekly Calendar

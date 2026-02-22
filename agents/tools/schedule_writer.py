@@ -77,18 +77,31 @@ def confirm_schedule(schedule_id: str) -> str:
 
     Returns JSON with updated schedule status.
     """
-    from db.queries import update_schedule_status, get_schedule
+    from db.queries import update_schedule_status, get_schedule, generate_session_instances
 
     try:
         update_schedule_status(schedule_id, "active")
         schedule = get_schedule(schedule_id)
+
+        # Generate concrete session instances for check-in tracking
+        if schedule.get("start_date") and schedule.get("end_date"):
+            try:
+                instances = generate_session_instances(
+                    schedule_id, schedule["start_date"], schedule["end_date"]
+                )
+                instance_count = len(instances) if instances else 0
+            except Exception:
+                instance_count = 0
+        else:
+            instance_count = 0
 
         course = schedule.get("courses", {})
         return json.dumps({
             "status": "confirmed",
             "schedule_id": schedule_id,
             "course": f"{course.get('code', '')} - {course.get('title', '')}",
-            "message": "Schedule confirmed and now active!",
+            "sessions_created": instance_count,
+            "message": f"Schedule confirmed and now active! {instance_count} class sessions created for check-in tracking.",
         }, indent=2)
     except Exception as e:
         return json.dumps({"error": str(e)})

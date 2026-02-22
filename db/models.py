@@ -93,6 +93,30 @@ class OCRDocument(BaseModel):
     created_at: Optional[datetime] = None
 
 
+class SessionInstance(BaseModel):
+    id: Optional[UUID] = None
+    schedule_id: UUID
+    schedule_slot_id: UUID
+    session_date: date
+    start_time: time
+    end_time: time
+    status: str = "pending"  # pending | completed | missed | rescheduled | cancelled
+    checked_in_at: Optional[datetime] = None
+    rescheduled_from: Optional[UUID] = None
+    rescheduled_to: Optional[UUID] = None
+    notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+
+class CheckinLog(BaseModel):
+    id: Optional[UUID] = None
+    session_instance_id: UUID
+    action: str  # check_in | auto_miss | reschedule | cancel
+    performed_by: Optional[str] = None
+    details: dict = {}
+    created_at: Optional[datetime] = None
+
+
 class AgentConversation(BaseModel):
     id: Optional[UUID] = None
     student_id: Optional[UUID] = None

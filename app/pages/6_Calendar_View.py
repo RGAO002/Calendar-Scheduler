@@ -1,7 +1,7 @@
 """Interactive calendar view for student course schedules.
 
 Uses streamlit-calendar (FullCalendar wrapper) to display courses
-in month / week / list views with color-coded subjects.
+in month / week / list views with color-coded subjects or check-in status.
 """
 from __future__ import annotations
 
@@ -28,6 +28,14 @@ SUBJECT_COLORS = {
     "History": {"bg": "#8E44AD", "border": "#7D389A"},
     "Art":     {"bg": "#E74C3C", "border": "#D43D2F"},
     "PE":      {"bg": "#16A085", "border": "#128E75"},
+}
+
+STATUS_COLORS = {
+    "completed":   {"bg": "#27AE60", "border": "#1E9B4E"},
+    "missed":      {"bg": "#E74C3C", "border": "#D43D2F"},
+    "rescheduled": {"bg": "#E67E22", "border": "#CF6E15"},
+    "pending":     {"bg": "#95A5A6", "border": "#7F8C8D"},
+    "cancelled":   {"bg": "#BDC3C7", "border": "#A6ACB0"},
 }
 
 DEFAULT_COLOR = {"bg": "#666666", "border": "#555555"}
@@ -145,9 +153,55 @@ def _db_to_events(schedules: list[dict], slots: list[dict]) -> list[dict]:
     return _weekly_slots_to_events(list(course_info.values()), num_weeks=14)
 
 
+def _instances_to_events(instances: list[dict], color_by: str = "subject") -> list[dict]:
+    """Convert session_instances (with joined course data) to FullCalendar events.
+
+    Args:
+        instances: List of session instance dicts (from get_sessions_for_range)
+        color_by: "subject" or "status"
+    """
+    events = []
+    for i, inst in enumerate(instances):
+        code = inst.get("course_code", "")
+        title = inst.get("course_title", "")
+        subject = inst.get("subject", "")
+        status = inst.get("status", "pending")
+        session_date = str(inst.get("session_date", ""))
+        start = str(inst.get("start_time", "09:00"))[:5]
+        end = str(inst.get("end_time", "10:00"))[:5]
+
+        if color_by == "status":
+            colors = STATUS_COLORS.get(status, DEFAULT_COLOR)
+        else:
+            colors = SUBJECT_COLORS.get(subject, DEFAULT_COLOR)
+
+        status_icon = {"completed": "✅", "missed": "❌", "rescheduled": "🔄",
+                       "cancelled": "🚫", "pending": ""}.get(status, "")
+        display_title = f"{status_icon} {code}: {title}".strip()
+
+        events.append({
+            "id": str(i + 1),
+            "title": display_title,
+            "start": f"{session_date}T{start}:00",
+            "end": f"{session_date}T{end}:00",
+            "backgroundColor": colors["bg"],
+            "borderColor": colors["border"],
+            "textColor": "#FFFFFF",
+            "extendedProps": {
+                "code": code,
+                "subject": subject,
+                "status": status,
+            },
+        })
+
+    return events
+
+
 # ── Load events ──────────────────────────────────────────
 use_demo = False
+has_instances = False
 student_info = None
+color_by = "subject"
 
 if student_id:
     try:
@@ -155,13 +209,27 @@ if student_id:
             get_student,
             get_student_schedules,
             get_student_all_slots,
+            get_sessions_for_range,
         )
         student_info = get_student(student_id)
         schedules = get_student_schedules(student_id, status="active")
-        all_slots = get_student_all_slots(student_id)
 
-        if schedules and all_slots:
-            events = _db_to_events(schedules, all_slots)
+        # Try loading session instances first (richer data with check-in status)
+        if schedules:
+            today = date.today()
+            range_start = today.replace(day=1) - timedelta(days=today.replace(day=1).weekday())
+            range_end = range_start + timedelta(weeks=14)
+            instances = get_sessions_for_range(student_id, range_start, range_end)
+
+            if instances:
+                has_instances = True
+            else:
+                # Fall back to weekly slot expansion
+                all_slots = get_student_all_slots(student_id)
+                if all_slots:
+                    events = _db_to_events(schedules, all_slots)
+                else:
+                    use_demo = True
         else:
             st.warning("No active courses found for this student. Showing **demo calendar**.")
             use_demo = True
@@ -174,6 +242,7 @@ else:
 
 if use_demo:
     events, student_info = _build_demo_events()
+    has_instances = False
 
 # ── Student header ───────────────────────────────────────
 if student_info:
@@ -181,22 +250,38 @@ if student_info:
     grade = student_info.get("grade_level", "")
     st.markdown(f"### {name} — Grade {grade}")
 
-# ── Color legend ─────────────────────────────────────────
-subjects_in_use = set()
-for ev in events:
-    subj = ev.get("extendedProps", {}).get("subject", "")
-    if subj:
-        subjects_in_use.add(subj)
+# ── Color-by toggle + build events ──────────────────────
+if has_instances:
+    col_cb, _ = st.columns([2, 4])
+    with col_cb:
+        color_by = st.radio(
+            "Color by",
+            ["Subject", "Status"],
+            horizontal=True,
+            label_visibility="collapsed",
+        ).lower()
+    events = _instances_to_events(instances, color_by=color_by)
 
-if subjects_in_use:
+# ── Color legend ─────────────────────────────────────────
+if color_by == "status" and has_instances:
+    legend_items = STATUS_COLORS
+else:
+    # Collect subjects actually in use
+    legend_items = {}
+    for ev in events:
+        subj = ev.get("extendedProps", {}).get("subject", "")
+        if subj and subj in SUBJECT_COLORS:
+            legend_items[subj] = SUBJECT_COLORS[subj]
+
+if legend_items:
     legend_html = '<div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px;">'
-    for subj in sorted(subjects_in_use):
-        color = SUBJECT_COLORS.get(subj, DEFAULT_COLOR)["bg"]
+    for label in sorted(legend_items):
+        color = legend_items[label]["bg"]
         legend_html += (
             f'<span style="display:inline-flex;align-items:center;gap:5px;">'
             f'<span style="display:inline-block;width:14px;height:14px;background:{color};'
             f'border-radius:3px;"></span>'
-            f'<span style="font-size:14px;">{subj}</span></span>'
+            f'<span style="font-size:14px;">{label}</span></span>'
         )
     legend_html += '</div>'
     st.markdown(legend_html, unsafe_allow_html=True)
@@ -290,15 +375,18 @@ try:
         ev = cal_data["eventClick"].get("event", {})
         ext = ev.get("extendedProps", {})
         with st.expander(f"📌 {ev.get('title', '')}", expanded=True):
-            col_a, col_b, col_c = st.columns(3)
-            with col_a:
+            cols = st.columns(4 if has_instances else 3)
+            with cols[0]:
                 st.write(f"**Course:** {ext.get('code', '')}")
-            with col_b:
+            with cols[1]:
                 st.write(f"**Subject:** {ext.get('subject', '')}")
-            with col_c:
+            with cols[2]:
                 start_str = ev.get("start", "")[:16].replace("T", " ")
                 end_str = ev.get("end", "")[:16].replace("T", " ")
                 st.write(f"**Time:** {start_str} → {end_str}")
+            if has_instances and len(cols) > 3:
+                with cols[3]:
+                    st.write(f"**Status:** {ext.get('status', 'pending')}")
 
 except ImportError:
     st.error(

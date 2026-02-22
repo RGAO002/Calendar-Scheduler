@@ -10,6 +10,7 @@ from agents.tools.availability_checker import get_student_availability, get_curr
 from agents.tools.course_recommender import search_courses, check_prerequisites
 from agents.tools.conflict_detector import detect_conflicts
 from agents.tools.schedule_writer import propose_schedule, confirm_schedule
+from agents.tools.checkin_tools import get_pending_sessions, agent_check_in_session, suggest_reschedule
 
 SCHEDULER_SYSTEM_PROMPT = """You are Evlin's AI scheduling assistant for homeschool families.
 
@@ -40,6 +41,15 @@ For every scheduling decision, use YES / NO / MAYBE logic:
 - Always mention trade-offs (e.g., "This works but the day would be heavy")
 - Ask for clarification if the request is ambiguous
 - Use the student's first name
+
+## Daily Check-In (打卡)
+
+You can also help parents with daily check-in tasks:
+- Check which sessions are pending for today (or any date)
+- Mark a session as completed (check in)
+- Suggest reschedule options for missed sessions
+
+When a parent asks about check-in or attendance, use the check-in tools.
 
 ## Important Rules
 
@@ -149,6 +159,42 @@ TOOL_DECLARATIONS = [
             "required": ["schedule_id"],
         },
     ),
+    # ── Check-In (打卡) Tools ──
+    types.FunctionDeclaration(
+        name="get_pending_sessions",
+        description="Get pending (unchecked) sessions for a student on a given date. Defaults to today if no date is provided.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "student_id": {"type": "string", "description": "The student's UUID"},
+                "target_date": {"type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)"},
+            },
+            "required": ["student_id"],
+        },
+    ),
+    types.FunctionDeclaration(
+        name="agent_check_in_session",
+        description="Check in (打卡) a specific session, marking it as completed. Only call when the parent explicitly confirms.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "session_id": {"type": "string", "description": "The session instance UUID to check in"},
+            },
+            "required": ["session_id"],
+        },
+    ),
+    types.FunctionDeclaration(
+        name="suggest_reschedule",
+        description="Find available reschedule options for a missed session. Returns up to 5 candidate time slots.",
+        parameters={
+            "type": "object",
+            "properties": {
+                "student_id": {"type": "string", "description": "The student's UUID"},
+                "missed_session_id": {"type": "string", "description": "UUID of the missed session instance"},
+            },
+            "required": ["student_id", "missed_session_id"],
+        },
+    ),
 ]
 
 # Map function names to implementations
@@ -175,6 +221,10 @@ TOOL_FUNCTIONS = {
         args.get("duration_weeks", 12),
     ),
     "confirm_schedule": lambda args: confirm_schedule(args["schedule_id"]),
+    # Check-In tools
+    "get_pending_sessions": lambda args: get_pending_sessions(args["student_id"], args.get("target_date")),
+    "agent_check_in_session": lambda args: agent_check_in_session(args["session_id"]),
+    "suggest_reschedule": lambda args: suggest_reschedule(args["student_id"], args["missed_session_id"]),
 }
 
 

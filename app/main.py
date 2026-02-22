@@ -27,6 +27,7 @@ Use the sidebar to select a student, then navigate to the tools:
 - **PDF Generator** — Create textbook-quality practice materials
 - **OCR Upload** — Extract text from uploaded documents
 - **Calendar View** — Interactive monthly / weekly / list calendar
+- **Daily Check-In** — Mark courses complete, reschedule missed sessions
 
 Select a student from the sidebar to get started.
 """)
