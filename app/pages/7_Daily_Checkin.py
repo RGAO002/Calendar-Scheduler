@@ -268,3 +268,85 @@ with col3:
     st.metric("This Week", f"{wc}/{wt}")
 with col4:
     st.metric("Missed (Unresolved)", len(missed))
+
+# ── Simulate Missed Day ─────────────────────────────────
+st.markdown("---")
+st.subheader("🧪 Simulate Missed Day")
+st.caption(
+    "Pick a date with completed sessions. Clicking the button will reset them "
+    "to 'pending', then immediately run auto-reschedule so you can see the "
+    "courses move to new dates."
+)
+
+from services.supabase_client import get_supabase as _get_sb
+
+sim_col1, sim_col2 = st.columns([2, 3])
+
+with sim_col1:
+    sim_date = st.date_input(
+        "Simulate date",
+        value=date.today() - timedelta(days=1),
+        max_value=date.today() - timedelta(days=1),
+        key="sim_date",
+    )
+
+# Show what sessions exist on that date
+sim_sessions = get_sessions_for_date(student_id, sim_date)
+completed_on_day = [s for s in sim_sessions if s["status"] in ("completed", "missed")]
+pending_on_day = [s for s in sim_sessions if s["status"] == "pending"]
+
+with sim_col2:
+    st.markdown(f"**{sim_date.strftime('%A, %b %d')}** — {len(sim_sessions)} sessions")
+    for s in sim_sessions:
+        icon = STATUS_ICONS.get(s["status"], "")
+        st.caption(f"{icon} {str(s.get('start_time',''))[:5]} {s.get('course_code','')} — {s['status']}")
+
+if not sim_sessions:
+    st.info("No sessions on this date. Pick a date that has classes.")
+elif not completed_on_day and not pending_on_day:
+    st.info("No completed/pending sessions to simulate on this date.")
+else:
+    resettable = completed_on_day if completed_on_day else pending_on_day
+    if st.button(
+        f"⚡ Simulate: mark {len(resettable)} session(s) as missed & auto-reschedule",
+        type="primary",
+    ):
+        sb = _get_sb()
+
+        # Step 1: Reset to pending (so mark_missed_sessions can pick them up)
+        for s in resettable:
+            sb.table("session_instances").update({
+                "status": "pending",
+                "checked_in_at": None,
+            }).eq("id", s["id"]).execute()
+
+        # Step 2: Run auto-reschedule
+        sim_result = mark_missed_sessions(student_id, auto_reschedule=True)
+        sim_missed = sim_result.get("missed", [])
+        sim_resched = sim_result.get("rescheduled", [])
+
+        # Step 3: Show results
+        if sim_resched:
+            st.success(f"✅ {len(sim_missed)} session(s) marked missed → {len(sim_resched)} auto-rescheduled!")
+            # Build a lookup for course codes
+            schedules_lookup = {
+                sch["id"]: sch.get("courses", {}).get("code", "")
+                for sch in get_student_schedules(student_id, status="active")
+            }
+            for r in sim_resched:
+                old = r["missed_session"]
+                code = schedules_lookup.get(old.get("schedule_id", ""), "")
+                st.markdown(
+                    f"- **{code}** ~~{old.get('session_date','')} "
+                    f"{str(old.get('start_time',''))[:5]}~~ → "
+                    f"**{r['new_date']} {r['new_start']}–{r['new_end']}**"
+                )
+        elif sim_missed:
+            st.warning(
+                f"{len(sim_missed)} session(s) marked missed, but no available "
+                f"slots found in the next 7 days to reschedule."
+            )
+        else:
+            st.info("No sessions were affected.")
+
+        st.info("Refresh the page or switch dates above to see the updated schedule.")
