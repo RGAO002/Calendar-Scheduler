@@ -28,6 +28,7 @@ Use the sidebar to select a student, then navigate to the tools:
 - **OCR Upload** — Extract text from uploaded documents
 - **Calendar View** — Interactive monthly / weekly / list calendar
 - **Daily Check-In** — Mark courses complete, reschedule missed sessions
+- **Practice Quiz** — Interactive concept quizzes powered by AI
 
 Select a student from the sidebar to get started.
 """)

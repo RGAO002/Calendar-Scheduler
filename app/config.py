@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # Gemini
     gemini_api_key: str = ""
 
+    # YouTube Data API v3
+    youtube_api_key: str = ""
+
     # Pinecone
     pinecone_api_key: str = ""
     pinecone_index_name: str = "evlin-courses"

@@ -3,10 +3,15 @@ from __future__ import annotations
 
 import streamlit as st
 import sys
+import importlib
 from pathlib import Path
 from datetime import date, timedelta
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
+# Force-reload db.queries so code changes take effect without restarting Streamlit
+import db.queries as _queries_mod
+importlib.reload(_queries_mod)
 
 from app.components.sidebar import render_student_selector
 
@@ -142,7 +147,7 @@ else:
         color = SUBJECT_COLORS.get(subject, "#666")
 
         with st.container():
-            col_info, col_action = st.columns([3, 1])
+            col_info, col_action, col_quiz = st.columns([3, 1, 1])
 
             with col_info:
                 st.markdown(
@@ -172,6 +177,14 @@ else:
                     st.error("❌ Missed")
                 elif status == "rescheduled":
                     st.warning("🔄 Rescheduled")
+
+            with col_quiz:
+                if status == "completed":
+                    st.link_button(
+                        "📝 Quiz",
+                        f"/Practice_Quiz?course={code}",
+                        use_container_width=True,
+                    )
 
             st.divider()
 
@@ -292,8 +305,7 @@ with sim_col1:
 
 # Show what sessions exist on that date
 sim_sessions = get_sessions_for_date(student_id, sim_date)
-completed_on_day = [s for s in sim_sessions if s["status"] in ("completed", "missed")]
-pending_on_day = [s for s in sim_sessions if s["status"] == "pending"]
+resettable_on_day = [s for s in sim_sessions if s["status"] in ("completed", "missed", "rescheduled", "pending")]
 
 with sim_col2:
     st.markdown(f"**{sim_date.strftime('%A, %b %d')}** — {len(sim_sessions)} sessions")
@@ -303,50 +315,79 @@ with sim_col2:
 
 if not sim_sessions:
     st.info("No sessions on this date. Pick a date that has classes.")
-elif not completed_on_day and not pending_on_day:
-    st.info("No completed/pending sessions to simulate on this date.")
+elif not resettable_on_day:
+    st.info("No sessions available to simulate on this date.")
 else:
-    resettable = completed_on_day if completed_on_day else pending_on_day
+    resettable = resettable_on_day
     if st.button(
         f"⚡ Simulate: mark {len(resettable)} session(s) as missed & auto-reschedule",
         type="primary",
     ):
         sb = _get_sb()
+        schedules_lookup = {
+            sch["id"]: sch.get("courses", {}).get("code", "")
+            for sch in get_student_schedules(student_id, status="active")
+        }
 
-        # Step 1: Reset to pending (so mark_missed_sessions can pick them up)
+        sim_resched = []
+
+        # Step 1: Clean up all reschedule chains first
         for s in resettable:
+            if s.get("rescheduled_to"):
+                # Break FK: clear rescheduled_from on the replacement, then delete it
+                sb.table("session_instances").update(
+                    {"rescheduled_from": None}
+                ).eq("id", s["rescheduled_to"]).execute()
+                sb.table("session_instances").delete().eq(
+                    "id", s["rescheduled_to"]
+                ).execute()
+
+            # Reset to missed
             sb.table("session_instances").update({
-                "status": "pending",
+                "status": "missed",
                 "checked_in_at": None,
+                "rescheduled_to": None,
             }).eq("id", s["id"]).execute()
 
-        # Step 2: Run auto-reschedule
-        sim_result = mark_missed_sessions(student_id, auto_reschedule=True)
-        sim_missed = sim_result.get("missed", [])
-        sim_resched = sim_result.get("rescheduled", [])
+            sb.table("checkin_log").insert({
+                "session_instance_id": s["id"],
+                "action": "auto_miss",
+                "performed_by": "simulate",
+            }).execute()
 
-        # Step 3: Show results
+        # Step 2: Find reschedule slots and reschedule each session
+        for s in resettable:
+            candidates = find_available_reschedule_slots(student_id, s["id"])
+            code = schedules_lookup.get(s.get("schedule_id", ""), "")
+
+            if candidates:
+                best = candidates[0]
+                new_inst = reschedule_session(
+                    s["id"], best["date"], best["start_time"], best["end_time"]
+                )
+                if new_inst and "error" not in new_inst:
+                    sim_resched.append({
+                        "code": code,
+                        "old_date": s.get("session_date", ""),
+                        "old_time": str(s.get("start_time", ""))[:5],
+                        "new_date": best["date"],
+                        "new_start": best["start_time"],
+                        "new_end": best["end_time"],
+                    })
+
+        # Show results
         if sim_resched:
-            st.success(f"✅ {len(sim_missed)} session(s) marked missed → {len(sim_resched)} auto-rescheduled!")
-            # Build a lookup for course codes
-            schedules_lookup = {
-                sch["id"]: sch.get("courses", {}).get("code", "")
-                for sch in get_student_schedules(student_id, status="active")
-            }
+            st.success(f"✅ {len(resettable)} session(s) marked missed → {len(sim_resched)} auto-rescheduled!")
             for r in sim_resched:
-                old = r["missed_session"]
-                code = schedules_lookup.get(old.get("schedule_id", ""), "")
                 st.markdown(
-                    f"- **{code}** ~~{old.get('session_date','')} "
-                    f"{str(old.get('start_time',''))[:5]}~~ → "
+                    f"- **{r['code']}** ~~{r['old_date']} "
+                    f"{r['old_time']}~~ → "
                     f"**{r['new_date']} {r['new_start']}–{r['new_end']}**"
                 )
-        elif sim_missed:
-            st.warning(
-                f"{len(sim_missed)} session(s) marked missed, but no available "
-                f"slots found in the next 7 days to reschedule."
-            )
         else:
-            st.info("No sessions were affected.")
+            st.warning(
+                f"{len(resettable)} session(s) marked missed, but no available "
+                f"slots found in the next 14 days to reschedule."
+            )
 
         st.info("Refresh the page or switch dates above to see the updated schedule.")

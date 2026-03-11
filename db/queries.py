@@ -488,13 +488,15 @@ def get_unresolved_missed(student_id: str) -> list[dict]:
 
 
 def find_available_reschedule_slots(
-    student_id: str, missed_session_id: str, days_ahead: int = 7
+    student_id: str, missed_session_id: str, days_ahead: int = 14
 ) -> list[dict]:
     """Find available dates/times to reschedule a missed session.
 
-    Returns up to 5 candidate slots sorted by preference.
+    Slides through each availability window in 30-min increments to find
+    a gap that fits the session duration. Returns up to 5 candidate slots
+    sorted by preference then date.
     """
-    from datetime import date as _date, timedelta, time as _time
+    from datetime import date as _date, timedelta
 
     sb = get_supabase()
     session = sb.table("session_instances").select("*").eq("id", missed_session_id).execute()
@@ -502,44 +504,47 @@ def find_available_reschedule_slots(
         return []
     missed = session.data[0]
 
-    # Session duration
+    # Session duration in minutes
     start_parts = str(missed["start_time"])[:5].split(":")
     end_parts = str(missed["end_time"])[:5].split(":")
-    start_t = _time(int(start_parts[0]), int(start_parts[1]))
-    end_t = _time(int(end_parts[0]), int(end_parts[1]))
     duration_min = (int(end_parts[0]) * 60 + int(end_parts[1])) - (int(start_parts[0]) * 60 + int(start_parts[1]))
 
     today = _date.today()
     tomorrow = today + timedelta(days=1)
     end_search = today + timedelta(days=days_ahead)
 
-    # Student availability
+    # Student availability by day-of-week
     avail = get_student_availability(student_id)
-    avail_by_dow = {}
+    avail_by_dow: dict[int, list] = {}
     for a in avail:
-        dow = a["day_of_week"]
-        if dow not in avail_by_dow:
-            avail_by_dow[dow] = []
-        avail_by_dow[dow].append(a)
+        avail_by_dow.setdefault(a["day_of_week"], []).append(a)
 
-    # Existing sessions in the search range
+    # Existing sessions (non-cancelled) in the search range, keyed by date string
     existing = get_sessions_for_range(student_id, tomorrow, end_search)
-    existing_by_date = {}
+    existing_by_date: dict[str, list] = {}
     for e in existing:
-        d = e["session_date"]
-        if d not in existing_by_date:
-            existing_by_date[d] = []
-        existing_by_date[d].append(e)
+        if e.get("status") not in ("cancelled", "rescheduled"):
+            existing_by_date.setdefault(e["session_date"], []).append(e)
 
+    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     candidates = []
     current = tomorrow
-    while current <= end_search:
+    while current <= end_search and len(candidates) < 10:
         dow = current.weekday()
         if dow not in avail_by_dow:
             current += timedelta(days=1)
             continue
 
-        day_existing = existing_by_date.get(str(current), [])
+        # Build sorted list of busy intervals for this day
+        day_busy = []
+        for ex in existing_by_date.get(str(current), []):
+            ex_s = str(ex["start_time"])[:5]
+            ex_e = str(ex["end_time"])[:5]
+            day_busy.append((
+                int(ex_s[:2]) * 60 + int(ex_s[3:5]),
+                int(ex_e[:2]) * 60 + int(ex_e[3:5]),
+            ))
+        day_busy.sort()
 
         for window in avail_by_dow[dow]:
             w_start = str(window["start_time"])[:5]
@@ -550,30 +555,32 @@ def find_available_reschedule_slots(
             if w_e_min - w_s_min < duration_min:
                 continue
 
-            # Try placing at window start
-            candidate_start = w_s_min
-            candidate_end = candidate_start + duration_min
+            # Slide through the window in 30-min steps
+            probe = w_s_min
+            while probe + duration_min <= w_e_min:
+                probe_end = probe + duration_min
 
-            # Check for conflicts
-            conflict = False
-            for ex in day_existing:
-                ex_s = str(ex["start_time"])[:5]
-                ex_e = str(ex["end_time"])[:5]
-                ex_s_min = int(ex_s[:2]) * 60 + int(ex_s[3:5])
-                ex_e_min = int(ex_e[:2]) * 60 + int(ex_e[3:5])
-                if candidate_start < ex_e_min and ex_s_min < candidate_end:
-                    conflict = True
-                    break
+                conflict = any(
+                    probe < busy_end and busy_start < probe_end
+                    for busy_start, busy_end in day_busy
+                )
 
-            if not conflict and candidate_end <= w_e_min:
-                candidates.append({
-                    "date": str(current),
-                    "day_name": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dow],
-                    "start_time": f"{candidate_start // 60:02d}:{candidate_start % 60:02d}",
-                    "end_time": f"{candidate_end // 60:02d}:{candidate_end % 60:02d}",
-                    "preference": window.get("preference", "available"),
-                    "same_dow": dow == missed.get("session_date", ""),
-                })
+                if not conflict:
+                    candidates.append({
+                        "date": str(current),
+                        "day_name": day_names[dow],
+                        "start_time": f"{probe // 60:02d}:{probe % 60:02d}",
+                        "end_time": f"{probe_end // 60:02d}:{probe_end % 60:02d}",
+                        "preference": window.get("preference", "available"),
+                    })
+                    break  # one slot per window is enough
+                else:
+                    # Jump past the conflicting session
+                    next_start = max(
+                        busy_end for busy_start, busy_end in day_busy
+                        if probe < busy_end and busy_start < probe_end
+                    )
+                    probe = next_start
 
         current += timedelta(days=1)
 
@@ -698,3 +705,53 @@ def get_checkin_stats(student_id: str) -> dict:
         "week_completed": week_completed,
         "week_total": week_total,
     }
+
+
+# ── Quiz Sessions ─────────────────────────────────────────
+
+
+def save_quiz_session(
+    student_id: str,
+    course_id: str | None,
+    topic: str,
+    concept: dict,
+    questions: list[dict],
+    quiz_html: str,
+    difficulty: str = "standard",
+) -> dict:
+    """Insert a new quiz session and return the row (including generated id)."""
+    sb = get_supabase()
+    row = {
+        "student_id": student_id,
+        "topic": topic,
+        "difficulty": difficulty,
+        "concept": concept,
+        "questions": questions,
+        "quiz_html": quiz_html,
+        "total": len(questions),
+        "status": "generated",
+    }
+    if course_id:
+        row["course_id"] = course_id
+    return sb.table("quiz_sessions").insert(row).execute().data[0]
+
+
+def get_quiz_session(quiz_id: str) -> dict | None:
+    """Fetch a single quiz session by id."""
+    sb = get_supabase()
+    resp = sb.table("quiz_sessions").select("*").eq("id", quiz_id).execute()
+    return resp.data[0] if resp.data else None
+
+
+def get_quiz_history(student_id: str, limit: int = 20) -> list[dict]:
+    """Return recent quiz sessions for a student, newest first."""
+    sb = get_supabase()
+    resp = (
+        sb.table("quiz_sessions")
+        .select("*, courses(code, title, subject)")
+        .eq("student_id", student_id)
+        .order("created_at", desc=True)
+        .limit(limit)
+        .execute()
+    )
+    return resp.data

@@ -117,6 +117,23 @@ class CheckinLog(BaseModel):
     created_at: Optional[datetime] = None
 
 
+class QuizSession(BaseModel):
+    id: Optional[UUID] = None
+    student_id: UUID
+    course_id: Optional[UUID] = None
+    topic: str
+    difficulty: str = "standard"
+    concept: dict = {}
+    questions: list[dict] = []
+    quiz_html: Optional[str] = None
+    status: str = "generated"  # generated | completed
+    score: Optional[int] = None
+    total: Optional[int] = None
+    answers: Optional[list[dict]] = None
+    completed_at: Optional[datetime] = None
+    created_at: Optional[datetime] = None
+
+
 class AgentConversation(BaseModel):
     id: Optional[UUID] = None
     student_id: Optional[UUID] = None
