@@ -1,0 +1,7 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1773452045
+config.json::JSON::-1::1773431053::0::1::::<><><>0<>0<><>::
+::res://scenes/::1773431131
+main.tscn::PackedScene::-1::1773431128::0::1::::<><><>0<>0<><>::res://scripts/game.gd
+::res://scripts/::1773450219
+game.gd::GDScript::1034699100808099622::1773431127::0::1::::<>Node2D<><>0<>0<><>::

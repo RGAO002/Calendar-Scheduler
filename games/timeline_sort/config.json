@@ -1,0 +1,13 @@
+{
+  "title": "American Civil War Timeline",
+  "subject": "History",
+  "grade": 5,
+  "events": [
+    {"label": "Election of Lincoln", "year": 1860, "hint": "The 16th president is elected"},
+    {"label": "Fort Sumter Attack", "year": 1861, "hint": "First shots of the war"},
+    {"label": "Emancipation Proclamation", "year": 1863, "hint": "Lincoln frees enslaved people"},
+    {"label": "Battle of Gettysburg", "year": 1863, "hint": "Turning point battle"},
+    {"label": "Sherman's March", "year": 1864, "hint": "March to the Sea"},
+    {"label": "Lee Surrenders", "year": 1865, "hint": "The war ends at Appomattox"}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Word Snake: Spelling Challenge",
+  "words": [
+    {
+      "word": "VOLCANO",
+      "hint": "A mountain that erupts with lava"
+    },
+    {
+      "word": "OXYGEN",
+      "hint": "The gas we breathe to stay alive"
+    },
+    {
+      "word": "GALAXY",
+      "hint": "A huge system of stars in space"
+    },
+    {
+      "word": "FOSSIL",
+      "hint": "Remains of ancient plants or animals in rock"
+    },
+    {
+      "word": "ECLIPSE",
+      "hint": "When the Moon blocks the Sun's light"
+    }
+  ]
+}

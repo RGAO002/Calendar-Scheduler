@@ -1,0 +1,13 @@
+{
+  "title": "Civil War Vocabulary",
+  "subject": "History",
+  "grade": 5,
+  "pairs": [
+    {"term": "Abolition", "definition": "Movement to end slavery"},
+    {"term": "Secession", "definition": "States leaving the Union"},
+    {"term": "Confederacy", "definition": "Southern states that broke away"},
+    {"term": "Union", "definition": "Northern states loyal to the USA"},
+    {"term": "Emancipation", "definition": "Freeing enslaved people"},
+    {"term": "Gettysburg", "definition": "Turning point battle of the war"}
+  ]
+}

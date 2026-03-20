@@ -1,0 +1,40 @@
+{
+  "title": "Tower Defense: Math Fortress",
+  "waves": [
+    {
+      "question": "What is 7 x 8?",
+      "correct": "56",
+      "wrong": ["54", "48", "64"],
+      "enemies": 5,
+      "enemy_speed": 60
+    },
+    {
+      "question": "What is 144 / 12?",
+      "correct": "12",
+      "wrong": ["14", "11", "10"],
+      "enemies": 6,
+      "enemy_speed": 70
+    },
+    {
+      "question": "What is 15% of 200?",
+      "correct": "30",
+      "wrong": ["20", "35", "25"],
+      "enemies": 7,
+      "enemy_speed": 75
+    },
+    {
+      "question": "What is the square root of 81?",
+      "correct": "9",
+      "wrong": ["8", "7", "11"],
+      "enemies": 8,
+      "enemy_speed": 80
+    },
+    {
+      "question": "What is 3^4 (3 to the power of 4)?",
+      "correct": "81",
+      "wrong": ["64", "27", "12"],
+      "enemies": 10,
+      "enemy_speed": 85
+    }
+  ]
+}

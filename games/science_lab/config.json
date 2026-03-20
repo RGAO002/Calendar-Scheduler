@@ -1,0 +1,39 @@
+{
+  "title": "Water Cycle Experiment",
+  "subject": "Science",
+  "grade": 4,
+  "experiments": [
+    {
+      "name": "Evaporation",
+      "instruction": "Drag the heat source to the water to see what happens!",
+      "materials": ["Water", "Heat Source"],
+      "correct_order": ["Water", "Heat Source"],
+      "result": "The water heats up and turns into water vapor (gas). This is called evaporation!",
+      "result_emoji": "\ud83d\udca8"
+    },
+    {
+      "name": "Condensation",
+      "instruction": "Drag the water vapor to the cold surface!",
+      "materials": ["Water Vapor", "Cold Surface"],
+      "correct_order": ["Cold Surface", "Water Vapor"],
+      "result": "The water vapor cools down and turns back into liquid drops. This is condensation!",
+      "result_emoji": "\ud83d\udca7"
+    },
+    {
+      "name": "Precipitation",
+      "instruction": "Add water drops to the cloud until it rains!",
+      "materials": ["Cloud", "Water Drops", "More Water"],
+      "correct_order": ["Cloud", "Water Drops", "More Water"],
+      "result": "The cloud becomes too heavy and releases rain! This is precipitation!",
+      "result_emoji": "\ud83c\udf27\ufe0f"
+    },
+    {
+      "name": "Collection",
+      "instruction": "Guide the rainwater to its destination!",
+      "materials": ["Rain", "River", "Ocean"],
+      "correct_order": ["Rain", "River", "Ocean"],
+      "result": "Rainwater flows into rivers and then into the ocean, ready to evaporate again! The cycle continues!",
+      "result_emoji": "\ud83c\udf0a"
+    }
+  ]
+}

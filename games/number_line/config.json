@@ -1,0 +1,13 @@
+{
+  "title": "Place the Fractions!",
+  "subject": "Math",
+  "grade": 5,
+  "rounds": [
+    {"prompt": "Place 1/2 on the number line", "answer": 0.5, "min": 0, "max": 1},
+    {"prompt": "Place 3/4 on the number line", "answer": 0.75, "min": 0, "max": 1},
+    {"prompt": "Place 1/4 on the number line", "answer": 0.25, "min": 0, "max": 1},
+    {"prompt": "Place 2/3 on the number line", "answer": 0.667, "min": 0, "max": 1},
+    {"prompt": "Place 1.5 on the number line", "answer": 1.5, "min": 0, "max": 3},
+    {"prompt": "Place 7 on the number line", "answer": 7, "min": 0, "max": 10}
+  ]
+}

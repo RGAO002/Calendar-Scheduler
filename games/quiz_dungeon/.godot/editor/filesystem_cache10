@@ -1,0 +1,8 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1773969691
+config.json::JSON::-1::1773430845::0::1::::<><><>0<>0<><>::
+export_presets.cfg::TextFile::-1::1773963120::0::1::::<><><>0<>0<><>::
+::res://scenes/::1773430928
+main.tscn::PackedScene::-1::1773430926::0::1::::<><><>0<>0<><>::res://scripts/game.gd
+::res://scripts/::1773968063
+game.gd::GDScript::5397848271131140228::1773968056::0::1::::<>Node2D<><>0<>0<><>::

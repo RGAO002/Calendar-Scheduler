@@ -1,0 +1,30 @@
+{
+  "title": "Star Blaster: Civil War Edition",
+  "questions": [
+    {
+      "question": "What year did the Civil War begin?",
+      "correct": "1861",
+      "wrong": ["1776", "1812", "1492"]
+    },
+    {
+      "question": "Who was the President during the Civil War?",
+      "correct": "Abraham Lincoln",
+      "wrong": ["George Washington", "Thomas Jefferson", "Andrew Jackson"]
+    },
+    {
+      "question": "What was the first battle of the Civil War?",
+      "correct": "Fort Sumter",
+      "wrong": ["Gettysburg", "Antietam", "Bull Run"]
+    },
+    {
+      "question": "Which side wanted to abolish slavery?",
+      "correct": "The Union (North)",
+      "wrong": ["The Confederacy", "Both sides", "Neither side"]
+    },
+    {
+      "question": "What document freed enslaved people in rebel states?",
+      "correct": "Emancipation Proclamation",
+      "wrong": ["Constitution", "Bill of Rights", "Declaration of Independence"]
+    }
+  ]
+}

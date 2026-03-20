@@ -1,0 +1,40 @@
+{
+  "title": "Quiz Dungeon: Science Adventure",
+  "rooms": [
+    {
+      "question": "What is the closest planet to the Sun?",
+      "correct": "Mercury",
+      "wrong": ["Venus", "Earth", "Mars"],
+      "reward": "sword",
+      "reward_name": "Solar Sword"
+    },
+    {
+      "question": "What gas do plants absorb from the air?",
+      "correct": "Carbon Dioxide",
+      "wrong": ["Oxygen", "Nitrogen", "Hydrogen"],
+      "reward": "shield",
+      "reward_name": "Leaf Shield"
+    },
+    {
+      "question": "What force keeps us on the ground?",
+      "correct": "Gravity",
+      "wrong": ["Magnetism", "Friction", "Wind"],
+      "reward": "boots",
+      "reward_name": "Gravity Boots"
+    },
+    {
+      "question": "What is H2O commonly known as?",
+      "correct": "Water",
+      "wrong": ["Salt", "Sugar", "Air"],
+      "reward": "potion",
+      "reward_name": "Water Potion"
+    },
+    {
+      "question": "Which organ pumps blood through your body?",
+      "correct": "Heart",
+      "wrong": ["Brain", "Lungs", "Stomach"],
+      "reward": "key",
+      "reward_name": "Golden Key"
+    }
+  ]
+}
